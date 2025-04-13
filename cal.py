@@ -87,8 +87,8 @@ with col3:
     if st.button("="): calculate_result()
 
 with col4:
-    if st.button("+"): set_operation("Addition")
-    if st.button("-"): set_operation("Subtraction")
-    if st.button("*"): set_operation("Multiplication")
+    if st.button(".+"): set_operation("Addition")
+    if st.button(".-"): set_operation("Subtraction")
+    if st.button(".*"): set_operation("Multiplication")
     if st.button("/"): set_operation("Division")
     if st.button("C"): clear_input()
