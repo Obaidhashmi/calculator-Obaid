@@ -1,94 +1,53 @@
 import streamlit as st
 
-# Title of the app
-st.title("Calculator")
+# Page setup
+st.set_page_config(page_title="Ultimate Calculator", layout="centered")
+st.markdown("<h1 style='text-align: center;'>🧮 Streamlit Calculator Made by Obaid Hashmi</h1>", unsafe_allow_html=True)
 
-# Display area
-display = st.empty()
-display.markdown("<div style='font-size: 40px; color: #333;'>0</div>", unsafe_allow_html=True)
+# Session state for the expression
+if 'expression' not in st.session_state:
+    st.session_state.expression = ""
 
-# Session state
-if "input_value" not in st.session_state:
-    st.session_state.input_value = ""
-if "operation" not in st.session_state:
-    st.session_state.operation = None
+# Function to evaluate or modify expression
+def handle_input(char):
+    if char == "=":
+        try:
+            st.session_state.expression = str(eval(st.session_state.expression))
+        except:
+            st.session_state.expression = "Error"
+    elif char == "C":
+        st.session_state.expression = ""
+    else:
+        st.session_state.expression += char
 
-# Functions
-def update_display(value):
-    st.session_state.input_value += value
-    display.markdown(f"<div style='font-size: 40px; color: #333;'>{st.session_state.input_value}</div>", unsafe_allow_html=True)
+# Expression input (keyboard friendly)
+expression = st.text_input("Enter expression", value=st.session_state.expression, key="input_field")
 
-def set_operation(op):
-    if st.session_state.input_value:
-        st.session_state.operation = op
-        st.session_state.stored_value = st.session_state.input_value
-        st.session_state.input_value = ""
-        display.markdown("<div style='font-size: 40px; color: #333;'>0</div>", unsafe_allow_html=True)
+# Update expression from keyboard input
+if expression != st.session_state.expression:
+    st.session_state.expression = expression
 
-def calculate_result():
-    if st.session_state.operation and st.session_state.input_value:
-        num1 = float(st.session_state.stored_value)
-        num2 = float(st.session_state.input_value)
-        if st.session_state.operation == "Addition":
-            result = num1 + num2
-        elif st.session_state.operation == "Subtraction":
-            result = num1 - num2
-        elif st.session_state.operation == "Multiplication":
-            result = num1 * num2
-        elif st.session_state.operation == "Division":
-            result = num1 / num2 if num2 != 0 else "Error"
-        st.session_state.input_value = str(result)
-        display.markdown(f"<div style='font-size: 40px; color: #333;'>{result}</div>", unsafe_allow_html=True)
-        st.session_state.operation = None
-        st.balloons()
+# Button layout
+buttons = [
+    ["7", "8", "9", "/"],
+    ["4", "5", "6", "X"],
+    ["1", "2", "3", ".-"],
+    ["0", "C", "=", ".+"]
+]
 
-def clear_input():
-    st.session_state.input_value = ""
-    display.markdown("<div style='font-size: 40px; color: #333;'>0</div>", unsafe_allow_html=True)
+st.markdown("### Click buttons below 👇 or type with keyboard:")
 
-# Styling
-button_style = """
-    <style>
-    .stButton>button {
-        font-size: 30px;
-        padding: 10px;
-        width: 100%;
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        color: #333;
-    }
-    .stButton>button:hover {
-        background-color: #ddd;
-        border: 1px solid #bbb;
-    }
-    </style>
-"""
-st.markdown(button_style, unsafe_allow_html=True)
+# Render buttons
+for row in buttons:
+    cols = st.columns(4)
+    for i, char in enumerate(row):
+        if cols[i].button(char, use_container_width=True):
+            handle_input(char)
 
-# Layout
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    if st.button("7"): update_display("7")
-    if st.button("4"): update_display("4")
-    if st.button("1"): update_display("1")
-    if st.button("0"): update_display("0")
-
-with col2:
-    if st.button("8"): update_display("8")
-    if st.button("5"): update_display("5")
-    if st.button("2"): update_display("2")
-    if st.button("."): update_display(".")
-
-with col3:
-    if st.button("9"): update_display("9")
-    if st.button("6"): update_display("6")
-    if st.button("3"): update_display("3")
-    if st.button("="): calculate_result()
-
-with col4:
-    if st.button(".+"): set_operation("Addition")
-    if st.button(".-"): set_operation("Subtraction")
-    if st.button(".*"): set_operation("Multiplication")
-    if st.button("/"): set_operation("Division")
-    if st.button("C"): clear_input()
+# Final result display (optional)
+if st.session_state.expression:
+    try:
+        result = eval(st.session_state.expression)
+        st.success(f"Result: {result}")
+    except:
+        pass  # Invalid intermediate expression
